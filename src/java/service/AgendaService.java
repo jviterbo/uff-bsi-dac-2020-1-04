@@ -23,6 +23,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -106,9 +107,10 @@ public class AgendaService {
         JPAEntradaDAO dao = new JPAEntradaDAO();
         Entrada e = dao.recupera(id);
         if (e == null)
-            throw new RuntimeException("Entrada não encontrada...");
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         JsonObjectBuilder builder = factory.createObjectBuilder();
-        JsonObject obj = builder.add("nome", e.getNome())
+        JsonObject obj = builder.add("id", e.getId())
+                .add("nome", e.getNome())
                 .add("sobrenome", e.getSobrenome())
                 .add("mail", e.getMail())
                 .add("zap", e.getZap())
