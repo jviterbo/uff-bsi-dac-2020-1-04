@@ -6,6 +6,7 @@
 package service;
 
 import java.io.StringReader;
+import java.net.URI;
 import java.util.List;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
@@ -22,7 +23,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import persistencia.Entrada;
 import persistencia.JPAEntradaDAO;
 
@@ -34,6 +38,9 @@ import persistencia.JPAEntradaDAO;
 public class AgendaService {
     
     private final JsonBuilderFactory factory;
+    
+    @Context
+    UriInfo uriInfo;
 
     public AgendaService() {
         factory = Json.createBuilderFactory(null);
@@ -53,7 +60,7 @@ public class AgendaService {
 
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
-    public void createJson(String ent) {
+    public Response createJson(String ent) {
         JPAEntradaDAO dao = new JPAEntradaDAO();
         JsonReaderFactory factory = Json.createReaderFactory(null);
         JsonReader jsonReader = factory.createReader(new StringReader(ent));
@@ -64,6 +71,9 @@ public class AgendaService {
         e.setMail(json.getString("mail"));
         e.setZap(json.getString("zap"));
         dao.salva(e);
+        URI uri = uriInfo.getAbsolutePathBuilder().path("entrada/" + String.valueOf(e.getId())).build();
+        Response resp = Response.created(uri).build();
+        return resp;
     }
 
     @PUT
